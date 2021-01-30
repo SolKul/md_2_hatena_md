@@ -25,10 +25,23 @@ def classfy_math_block(md_list,pos,end_pos):
 
 # ブロック環境の数式の始まりと終わり
 block_begin="<div align=\"center\">[tex:\displaystyle{ "
-block_end="}]</div>"
+block_end=" }]</div>"
 # ブラケットの正規表現
 bracket_begin_pat=re.compile(r'\[')
 bracket_end_pat=re.compile(r'\]')
+# パース後のブラケット
+parsed_bracket_begin=r'\['
+parsed_bracket_end=r'\]'
+# 不等号の正規表現
+less_than_pat=re.compile(r'<')
+greater_than_pat=re.compile(r'>')
+# パース後の不等号
+# \\が2つなのに更にraw文字列としているのは、
+# もともと必要な\のエスケープに加え、
+# re.sub()のreple引数で使うので、
+# reple引数では\を解釈してしまうのでさらにそれをエスケープするため。
+parsed_less_than=r'\\lt '
+parsed_greater_than=r'\\gt '
 
 def parse_math_block(math_block):
     """
@@ -37,8 +50,13 @@ def parse_math_block(math_block):
     new_math_list=[block_begin]
     for i in range(1,len(math_block)-1):
         line=math_block[i].rstrip(os.linesep)
-        line=bracket_begin_pat.sub('\\[', line)
-        line=bracket_end_pat.sub('\\]', line)
+        # ブラケットをエスケープする
+        line=bracket_begin_pat.sub(parsed_bracket_begin, line)
+        line=bracket_end_pat.sub(parsed_bracket_end, line)
+        # 不等号をMathJax用不等号記号に
+        line=less_than_pat.sub(parsed_less_than,line)
+        line=greater_than_pat.sub(parsed_greater_than,line)
+        # alignedをalignに
         line=re.sub(r'aligned',r'align',line)
         new_math_list.append(line)
     new_math_list.append(block_end)
@@ -47,44 +65,45 @@ def parse_math_block(math_block):
 # インライン環境の数式の正規表現
 inline_dollar_pat=re.compile(r'\$(.+?)\$')
 # インライン環境の数式の始まりと終わり
-# \が4つなのは、もともと必要な\のエスケープに加え、
-# re.sub()のreple引数で使うので、
-# reple引数では\を解釈してしまうのでそれをエスケープするため。
-inline_begin="[tex:\\\\displaystyle{"
-inline_end="}]"
+inline_begin=r"[tex:\displaystyle{ "
+inline_end=" }]"
 
-# h2タグの始まりと終わり
-h3tag_begin_pat=re.compile(r"<h3>")
-h3tag_end_pat=re.compile(r"</h3>")
-# h3タグの始まりと終わり
-h4tag_begin=r"<h4>"
-h4tag_end=r"</h4>"
-
-# h2タグの始まりと終わり
-h2tag_begin_pat=re.compile(r"<h2>")
-h2tag_end_pat=re.compile(r"</h2>")
-# h3タグの始まりと終わり
-h3tag_begin=r"<h3>"
-h3tag_end=r"</h3>"
-
+def parse_inline_math(math_str):
+    conv_math_str=math_str
+    # ブラケットをエスケープする
+    conv_math_str=bracket_begin_pat.sub(parsed_bracket_begin, conv_math_str)
+    conv_math_str=bracket_end_pat.sub(parsed_bracket_end, conv_math_str)
+    # 不等号をMathJax用不等号記号に
+    conv_math_str=less_than_pat.sub(parsed_less_than,conv_math_str)
+    conv_math_str=greater_than_pat.sub(parsed_greater_than,conv_math_str)
+    
+    return inline_begin+conv_math_str+inline_end    
 
 def parse_plain_block(plain_block):
     """
-    mdモジュールで変換した後、
-    インライン環境の数式をパースし、
-    h3タグをh4に、h2タグをh3にする。
+    インライン数式をオブジェクト化して変換。
+    元の文字列の該当箇所は「inline_math_数字」と置換する。
+    退避させていたインライン数式を(はてな記法に変換した上で)
+    変換後の文字列に戻す。
     """
-    md_parser=md.Markdown(extensions=['tables'])
-
-    parsed=md_parser.convert("".join(plain_block))
-    parsed=inline_dollar_pat.sub(inline_begin+r"\1"+inline_end,parsed)
+    # 標準ブロックをすべて結合し、文字列にする
+    plain_str="".join(plain_block)
+    # インライン数式をすべて探し、
+    #「inline_math_数字」と置換する。
+    match_results=inline_dollar_pat.findall(plain_str)
+    match_num=len(match_results)
+    parsing_math_list=[]
+    for i in range(match_num):
+        # インライン数式を変換する。
+        conv_math_str=parse_inline_math(match_results[i])
+        # 一番左にあるインライン数式を変換後の文字列にする。
+        # その際、エスケープがエスケープされるようにする。
+        plain_str=inline_dollar_pat.sub(
+            repr(conv_math_str)[1:-1],
+            plain_str,
+            count=1)
     
-    parsed=h3tag_begin_pat.sub(h4tag_begin,parsed)
-    parsed=h3tag_end_pat.sub(h4tag_end,parsed)
-    
-    parsed=h2tag_begin_pat.sub(h3tag_begin,parsed)
-    parsed=h2tag_end_pat.sub(h3tag_end,parsed)
-    return parsed
+    return plain_str
 
 def classify_blocks(md_whole):
     """
@@ -151,5 +170,5 @@ def parse_md_to_hatena(md_path):
     parsed_list=parse_block_list(md_block_list)
 
     # 保存する
-    hatena_path=Path(md_path.stem+"_hatena.txt")
+    hatena_path=Path(md_path.stem+"_hatena.md")
     hatena_path.write_text("\n".join(parsed_list),encoding='utf-8')
