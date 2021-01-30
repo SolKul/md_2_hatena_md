@@ -27,8 +27,8 @@ def classfy_math_block(md_list,pos,end_pos):
 block_begin="<div align=\"center\">[tex:\displaystyle{ "
 block_end=" }]</div>"
 # ブラケットの正規表現
-bracket_begin_pat=re.compile(r'\[')
-bracket_end_pat=re.compile(r'\]')
+bracket_begin_pat=re.compile('\[')
+bracket_end_pat=re.compile('\]')
 # パース後のブラケット
 parsed_bracket_begin=r'\['
 parsed_bracket_end=r'\]'
@@ -67,24 +67,45 @@ inline_dollar_pat=re.compile(r'\$(.+?)\$')
 # インライン環境の数式の始まりと終わり
 inline_begin=r"[tex:\displaystyle{ "
 inline_end=" }]"
+# インライン版パース後のブラケット
+# 最終的に`\\]`と表示されるようにしたいが、
+# なぜ\を4つも使った上にraw文字列としているかというと
+# https://qiita.com/SolKul/items/8b0f41cf5d8acdcb0b8b
+# を参照
+inline_parsed_bracket_end=r'\\\\]'
+# 指数(キャレット)の正規表現
+caret_pat=re.compile('\^')
+# エスケープ済み波括弧の正規表現
+# `\`が3つなのは
+# 1つめは2つ目の`\`をエスケープするため、
+# 3つ目は正規表現でメタ文字に当たる`{`をエスケープするための
+# 4つ目の`\`をエスケープするため
+curly_begin_pat=re.compile('\\\\{')
+curly_end_pat=re.compile('\\\\}')
+# アンダーバーの正規表現
+under_bar_pat=re.compile('_')
 
 def parse_inline_math(math_str):
     conv_math_str=math_str
     # ブラケットをエスケープする
     conv_math_str=bracket_begin_pat.sub(parsed_bracket_begin, conv_math_str)
-    conv_math_str=bracket_end_pat.sub(parsed_bracket_end, conv_math_str)
+    conv_math_str=bracket_end_pat.sub(inline_parsed_bracket_end, conv_math_str)
     # 不等号をMathJax用不等号記号に
     conv_math_str=less_than_pat.sub(parsed_less_than,conv_math_str)
     conv_math_str=greater_than_pat.sub(parsed_greater_than,conv_math_str)
+    # キャレットの後に空白を
+    conv_math_str=caret_pat.sub("^ ",conv_math_str)
+    # 波括弧のエスケープをさらにエスケープ
+    conv_math_str=curly_begin_pat.sub(r"\\\\{",conv_math_str)
+    conv_math_str=curly_end_pat.sub(r"\\\\}",conv_math_str)
+    # アンダーバーの前後に空白を
+    conv_math_str=under_bar_pat.sub(" _ ",conv_math_str)
     
     return inline_begin+conv_math_str+inline_end    
 
 def parse_plain_block(plain_block):
     """
-    インライン数式をオブジェクト化して変換。
-    元の文字列の該当箇所は「inline_math_数字」と置換する。
-    退避させていたインライン数式を(はてな記法に変換した上で)
-    変換後の文字列に戻す。
+    インライン数式を`findall`ですべて検索し、順次変換する。
     """
     # 標準ブロックをすべて結合し、文字列にする
     plain_str="".join(plain_block)
@@ -97,7 +118,7 @@ def parse_plain_block(plain_block):
         # インライン数式を変換する。
         conv_math_str=parse_inline_math(match_results[i])
         # 一番左にあるインライン数式を変換後の文字列にする。
-        # その際、エスケープがエスケープされるようにする。
+        # その際、reple引数のエスケープがエスケープされるようにする。
         plain_str=inline_dollar_pat.sub(
             repr(conv_math_str)[1:-1],
             plain_str,
@@ -158,8 +179,8 @@ def parse_block_list(md_block_list):
 def parse_md_to_hatena(md_path):
     """
     pathlibのPathを受け取って、
-    markdownをはてな記法にパースして、
-    もとのファイル名_hatena.txtとして保存する
+    markdownをはてな流mdにパースして、
+    もとのファイル名_hatena.mdとして保存する
     """
     with md_path.open(encoding='utf-8',mode='r') as f:
         md_whole=f.readlines()
