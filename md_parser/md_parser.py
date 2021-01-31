@@ -56,8 +56,7 @@ def parse_math_block(math_block):
         # 不等号をMathJax用不等号記号に
         line=less_than_pat.sub(parsed_less_than,line)
         line=greater_than_pat.sub(parsed_greater_than,line)
-        # alignedをalignに
-        line=re.sub(r'aligned',r'align',line)
+
         new_math_list.append(line)
     new_math_list.append(block_end)
     return "".join(new_math_list)
@@ -76,10 +75,14 @@ inline_parsed_bracket_end=r'\\\\]'
 # 指数(キャレット)の正規表現
 caret_pat=re.compile('\^')
 # エスケープ済み波括弧の正規表現
-# `\`が3つなのは
+# `\`が4つなのは
 # 1つめは2つ目の`\`をエスケープするため、
+# これはPythonが``で文字列を解釈した時点でエスケープが発生
 # 3つ目は正規表現でメタ文字に当たる`{`をエスケープするための
 # 4つ目の`\`をエスケープするため
+# これもPythonが``で文字列を解釈した時点でエスケープが発生
+# 4つ目の`\`は正規表現でメタ文字に当たる`{`をエスケープするため
+# これは正規表現モジュール`re`がエスケープを解釈する
 curly_begin_pat=re.compile('\\\\{')
 curly_end_pat=re.compile('\\\\}')
 # アンダーバーの正規表現
