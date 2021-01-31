@@ -42,9 +42,9 @@ greater_than_pat=re.compile('>')
 parsed_less_than=r'\\lt '
 parsed_greater_than=r'\\gt '
 
-def parse_math_block(math_block):
+def parse_math_block(math_block,svg=False):
     """
-    ブロック環境の数式をパースすする。
+    ブロック環境の数式をパースする。
     """
     new_math_list=[block_begin]
     for i in range(1,len(math_block)-1):
@@ -62,6 +62,12 @@ def parse_math_block(math_block):
 
 # インライン環境の数式の正規表現
 inline_dollar_pat=re.compile(r'\$(.+?)\$')
+# ブラケットの正規表現
+bracket_begin_pat=re.compile(r'\[')
+bracket_end_pat=re.compile(r'\]')
+# 不等号の正規表現
+less_than_pat=re.compile(r'<')
+greater_than_pat=re.compile(r'>')
 # インライン環境の数式の始まりと終わり
 inline_begin=r"[tex:\displaystyle{ "
 inline_end=" }]"
@@ -105,7 +111,7 @@ def parse_inline_math(math_str):
     
     return inline_begin+conv_math_str+inline_end    
 
-def parse_plain_block(plain_block):
+def parse_plain_block(plain_block,svg=False):
     """
     インライン数式を`findall`ですべて検索し、順次変換する。
     """
@@ -164,7 +170,7 @@ def classify_blocks(md_whole):
         pos+=1
     return md_block_list
 
-def parse_block_list(md_block_list):
+def parse_block_list(md_block_list,svg=False):
     """
     ブロックのリストそれぞれをパースする
     """
@@ -172,13 +178,13 @@ def parse_block_list(md_block_list):
 
     for block in md_block_list:
         if block[0] == "plain_block":
-            parsed_list.append( parse_plain_block(block[1]) )
+            parsed_list.append( parse_plain_block(block[1],svg=svg))
         elif block[0] == "math_block":
-            parsed_list.append( parse_math_block(block[1]))
+            parsed_list.append( parse_math_block(block[1],svg=svg))
     return parsed_list
 
         
-def parse_md_to_hatena(md_path):
+def parse_md_to_hatena(md_path,svg=False):
     """
     pathlibのPathを受け取って、
     markdownをはてな流mdにパースして、
@@ -190,7 +196,7 @@ def parse_md_to_hatena(md_path):
     if md_whole is None:
         return None
     md_block_list=classify_blocks(md_whole)
-    parsed_list=parse_block_list(md_block_list)
+    parsed_list=parse_block_list(md_block_list,svg=svg)
 
     # 保存する
     hatena_path=Path(md_path.stem+"_hatena.md")
