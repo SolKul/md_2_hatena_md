@@ -3,7 +3,7 @@
 ポテンシャルが[tex:\displaystyle{ r }]のみの関数(中心力場)で、定常状態の場合のシュレーディンガー方程式は、
 
 <div align="center">[tex:\displaystyle{ \left\[    -\frac{\hbar^2}{2m}\nabla^2+V(r)\right\]\varphi(\pmb{r})=\varepsilon\varphi(\pmb{r})\tag{1} }]</div>
-となる。ラプラシアン[tex:\displaystyle{ \nabla^2 }]は、球面極座標[tex:\displaystyle{ (r,\theta,\phi) }]では・・・
+となる。ラプラシアン[tex:\displaystyle{ \nabla^ 2 }]は、球面極座標[tex:\displaystyle{ (r,\theta,\phi) }]では・・・
 
 ## 不等号テスト
 
@@ -11,6 +11,15 @@
 
 
 <div align="center">[tex:\displaystyle{ \begin{align}V(x)&=0\hspace{20pt}x\lt 0,\hspace{10pt}x\gt a\\V(x)&=V_0\hspace{17pt}0\lt x\lt a\end{align}\tag{1} }]</div>
+
+## 角括弧・波括弧テスト
+
+標準正規分布[tex:\displaystyle{ \mathcal{N} (0,1) }]の確率母関数は[tex:\displaystyle{ M _ Z(t)=E\[e^ {tZ}\\]=e^ {t^ 2/2} }]である。
+ガンマ分布[tex:\displaystyle{ X\sim Ga(\alpha,\beta) }]について[tex:\displaystyle{ Y=X/\beta }]と変数変換したとき、[tex:\displaystyle{ Y }]の確率母関数は次のようになる。
+
+<div align="center">[tex:\displaystyle{ M_Y(t)=E\[e^{tZ}\]=\frac{1}{(1-t)^\alpha} }]</div>
+
+波括弧テスト[tex:\displaystyle{ \\{\[test\\]\\} }]
 
 ## aligned環境テスト
 
@@ -31,11 +40,11 @@
 
 |  演算子  |  固有値  | 作用した結果 |
 | ---- | ---- | ---- |
-|  [tex:\displaystyle{ \pmb{l}^2 }]  |  [tex:\displaystyle{ l(l+1)\hbar^2 }]  | [tex:\displaystyle{ \pmb{l}^2Y^m_l=l(l+1)\hbar^2Y^m_l }] |
-|  [tex:\displaystyle{ l_z }] |  [tex:\displaystyle{ m_l\hbar }]  | [tex:\displaystyle{ l_zY^m_l=m_l\hbar Y^m_l }] |
-|  [tex:\displaystyle{ l_+ }] |  なし  | [tex:\displaystyle{ l_+Y^m_l=\hbar\sqrt{(l-m)(l+m+1)}Y^{m+1}_l }] |
-|  [tex:\displaystyle{ l_- }] |  なし  | [tex:\displaystyle{ l_-Y^m_l=\hbar\sqrt{(l+m)(l-m+1)}Y^{m-1}_l }] |
+|  [tex:\displaystyle{ \pmb{l}^ 2 }]  |  [tex:\displaystyle{ l(l+1)\hbar^ 2 }]  | [tex:\displaystyle{ \pmb{l}^ 2Y^ m _ l=l(l+1)\hbar^ 2Y^ m _ l }] |
+|  [tex:\displaystyle{ l _ z }] |  [tex:\displaystyle{ m _ l\hbar }]  | [tex:\displaystyle{ l _ zY^ m _ l=m _ l\hbar Y^ m _ l }] |
+|  [tex:\displaystyle{ l _ + }] |  なし  | [tex:\displaystyle{ l _ +Y^ m _ l=\hbar\sqrt{(l-m)(l+m+1)}Y^ {m+1} _ l }] |
+|  [tex:\displaystyle{ l _ - }] |  なし  | [tex:\displaystyle{ l _ -Y^ m _ l=\hbar\sqrt{(l+m)(l-m+1)}Y^ {m-1} _ l }] |
 
-|  [tex:\displaystyle{ 0\lt a }]  |  [tex:\displaystyle{ \[a\gt 0\] }]  |
+|  [tex:\displaystyle{ 0\lt a }]  |  [tex:\displaystyle{ \[a\gt 0\\] }]  |
 | ---- | ---- |
-|  [tex:\displaystyle{ \sqrt{a\gt 0} }]  |  [tex:\displaystyle{ \[\omega^2\] }]  |
+|  [tex:\displaystyle{ \sqrt{a\gt 0} }]  |  [tex:\displaystyle{ \[\omega^ 2\\] }]  |
