@@ -33,8 +33,8 @@ bracket_end_pat=re.compile('\]')
 parsed_bracket_begin=r'\['
 parsed_bracket_end=r'\]'
 # 不等号の正規表現
-less_than_pat=re.compile(r'<')
-greater_than_pat=re.compile(r'>')
+less_than_pat=re.compile('<')
+greater_than_pat=re.compile('>')
 # パース後の不等号
 # \\が2つなのに更にraw文字列としているのは、
 # もともと必要な\のエスケープに加え、
