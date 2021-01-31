@@ -10,7 +10,7 @@
 [tex:\displaystyle{ 0\lt x\lt a }]にポテンシャルの壁がある場合の粒子の運動、トンネル効果について考える。
 
 
-<div align="center">[tex:\displaystyle{ \begin{align}V(x)&=0\hspace{20pt}x\lt 0,\hspace{10pt}x\gt a\\V(x)&=V_0\hspace{17pt}0\lt x\lt a\end{align}\tag{1} }]</div>
+<div align="center">[tex:\displaystyle{ \begin{aligned}V(x)&=0\hspace{20pt}x\lt 0,\hspace{10pt}x\gt a\\V(x)&=V_0\hspace{17pt}0\lt x\lt a\end{aligned}\tag{1} }]</div>
 
 ## 角括弧・波括弧テスト
 
@@ -26,7 +26,7 @@
 クーロン場での動径方向のシュレーディンガー方程式の固有関数は
 
 
-<div align="center">[tex:\displaystyle{ \begin{align}R_{1s}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}2\mathrm{e}^{-Zr/a_0}\\\\R_{2s}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}\frac{1}{\sqrt{2}}\left(1-\frac{1}{2}\frac{Zr}{a_0}\right)\mathrm{e}^{-Zr/2a_0}\\R_{2p}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}\frac{1}{2\sqrt{6}}\frac{Zr}{a_0}\mathrm{e}^{-Zr/2a_0}\end{align} }]</div>
+<div align="center">[tex:\displaystyle{ \begin{aligned}R_{1s}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}2\mathrm{e}^{-Zr/a_0}\\\\R_{2s}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}\frac{1}{\sqrt{2}}\left(1-\frac{1}{2}\frac{Zr}{a_0}\right)\mathrm{e}^{-Zr/2a_0}\\R_{2p}(r)&=\left(\frac{Z}{a_0}\right)^{\frac{3}{2}}\frac{1}{2\sqrt{6}}\frac{Zr}{a_0}\mathrm{e}^{-Zr/2a_0}\end{aligned} }]</div>
 
 ## array環境テスト
 
