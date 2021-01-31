@@ -1,6 +1,5 @@
 from pathlib import Path
 import os,re
-import markdown as md
 
 def classfy_math_block(md_list,pos,end_pos):
     """
