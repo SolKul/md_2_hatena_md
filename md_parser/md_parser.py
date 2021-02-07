@@ -27,7 +27,7 @@ def classfy_math_block(md_list,pos,end_pos):
 # インライン環境の数式の正規表現
 inline_dollar_pat=re.compile(r'\$(.+?)\$')
 
-def parse_plain_block(plain_block,svg=False):
+def parse_plain_block(plain_block,style="default"):
     """
     インライン数式を`findall`ですべて検索し、順次変換する。
     """
@@ -42,13 +42,17 @@ def parse_plain_block(plain_block,svg=False):
         # インライン数式を変換する。
         conv_math_str=math_parser.parse_inline_math(
             match_results[i],
-            style="default")
+            style=style)
         # 一番左にあるインライン数式を変換後の文字列にする。
         # その際、reple引数のエスケープがエスケープされるようにする。
         plain_str=inline_dollar_pat.sub(
             repr(conv_math_str)[1:-1],
             plain_str,
             count=1)
+
+    if style == "katex":
+        plain_str=plain_str.replace("inline_begin","[]$")
+        plain_str=plain_str.replace("inline_end","$[]")
     
     return plain_str
 
@@ -88,7 +92,7 @@ def classify_blocks(md_whole):
         pos+=1
     return md_block_list
 
-def parse_block_list(md_block_list,svg=False):
+def parse_block_list(md_block_list,style="default"):
     """
     ブロックのリストそれぞれをパースする
     """
@@ -96,15 +100,41 @@ def parse_block_list(md_block_list,svg=False):
 
     for block in md_block_list:
         if block[0] == "plain_block":
-            parsed_list.append( parse_plain_block(block[1],svg=svg))
+            parsed_list.append( parse_plain_block(
+                block[1],
+                style=style))
         elif block[0] == "math_block":
             parsed_list.append( math_parser.parse_math_block(
                 block[1],
-                style="default"))
+                style=style))
+    if style == "katex":
+        n7shi_script="""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.css" integrity="sha384-bsHo4/LA+lkZv61JspMDQB9QP1TtO4IgOf2yYS+J6VdAYLVyx1c3XKcsHh0Vy8Ws" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.js" integrity="sha384-4z8mjH4yIpuK9dIQGR1JwbrfYsStrNK6MP+2Enhue4eyo0XlBDXOIPc8b6ZU0ajz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  for (let e of Array.from(document.getElementsByClassName("math-render"))) {
+    if (!e.mathRendered) {
+      try {
+        katex.render(e.textContent, e, { displayMode: true });
+      } catch (ex) {
+        e.textContent = ex.message;
+      }
+      e.mathRendered = true;
+    }
+  }
+  let katexOptions = { delimiters: [{ left: "$", right: "$", display: false }] };
+  for (let e of Array.from(document.getElementsByClassName("entry-content"))) {
+    renderMathInElement(e, katexOptions);
+  }
+});
+</script>"""
+        parsed_list.append(n7shi_script)
     return parsed_list
 
         
-def parse_md_to_hatena(md_path,svg=False):
+def parse_md_to_hatena(md_path,style="default"):
     """
     pathlibのPathを受け取って、
     markdownをはてな流mdにパースして、
@@ -116,7 +146,7 @@ def parse_md_to_hatena(md_path,svg=False):
     if md_whole is None:
         return None
     md_block_list=classify_blocks(md_whole)
-    parsed_list=parse_block_list(md_block_list,svg=svg)
+    parsed_list=parse_block_list(md_block_list,style=style)
 
     # 保存する
     hatena_path=Path(md_path.stem+"_hatena.md")

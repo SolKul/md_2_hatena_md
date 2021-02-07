@@ -49,7 +49,34 @@ def parse_default_mb(math_block):
     return "".join(new_math_list)
 
 def parse_katex_md(math_block):
-    pass
+    """
+    ブロック環境の数式を七誌KaTexスタイルでパースする。
+    """
+    # ブロック環境の数式の始まりと終わり
+    block_begin="<div class=\"math-render\">"
+    block_end="</div>"
+    # 不等号の正規表現
+    less_than_pat=re.compile('<')
+    greater_than_pat=re.compile('>')
+    # パース後の不等号
+    # \\が2つなのに更にraw文字列としているのは、
+    # もともと必要な\のエスケープに加え、
+    # re.sub()のreple引数で使うので、
+    # reple引数では\を解釈してしまうのでさらにそれをエスケープするため。
+    parsed_less_than=r'\\lt '
+    parsed_greater_than=r'\\gt '
+
+    new_math_list=[block_begin]
+    for i in range(1,len(math_block)-1):
+        line=math_block[i].rstrip(os.linesep)
+
+        # 不等号をHTML用不等号記号に
+        line=less_than_pat.sub(parsed_less_than,line)
+        line=greater_than_pat.sub(parsed_greater_than,line)
+
+        new_math_list.append(line)
+    new_math_list.append(block_end)
+    return "".join(new_math_list)
 
 
 def parse_inline_math(math_str,style="default"):
@@ -79,8 +106,6 @@ def parse_default_inline(math_str):
     parsed_less_than=r'\\lt '
     parsed_greater_than=r'\\gt '
 
-    # インライン環境の数式の正規表現
-    inline_dollar_pat=re.compile(r'\$(.+?)\$')
     # インライン環境の数式の始まりと終わり
     inline_begin=r"[tex:\displaystyle{ "
     inline_end=" }]"
@@ -110,7 +135,7 @@ def parse_default_inline(math_str):
     # ブラケットをエスケープする
     conv_math_str=bracket_begin_pat.sub(parsed_bracket_begin, conv_math_str)
     conv_math_str=bracket_end_pat.sub(inline_parsed_bracket_end, conv_math_str)
-    # 不等号をMathJax用不等号記号に
+    # 不等号をHTML用不等号記号に
     conv_math_str=less_than_pat.sub(parsed_less_than,conv_math_str)
     conv_math_str=greater_than_pat.sub(parsed_greater_than,conv_math_str)
     # キャレットの後に空白を
@@ -124,4 +149,46 @@ def parse_default_inline(math_str):
     return inline_begin+conv_math_str+inline_end    
 
 def parse_katex_inline(math_str):
-    pass
+    # インライン環境の数式の始まりと終わり
+    inline_begin="inline_begin"
+    inline_end="inline_end"
+
+    # 不等号の正規表現
+    less_than_pat=re.compile('<')
+    greater_than_pat=re.compile('>')
+    # パース後の不等号
+    # \\が2つなのに更にraw文字列としているのは、
+    # もともと必要な\のエスケープに加え、
+    # re.sub()のreple引数で使うので、
+    # reple引数では\を解釈してしまうのでさらにそれをエスケープするため。
+    parsed_less_than=r'\\lt '
+    parsed_greater_than=r'\\gt '
+    # 指数(キャレット)の正規表現
+    caret_pat=re.compile('\^')
+    # アンダーバーの正規表現
+    under_bar_pat=re.compile('_')
+    # エスケープ済み波括弧の正規表現
+    # `\`が4つなのは
+    # 1つめは2つ目の`\`をエスケープするため、
+    # これはPythonが``で文字列を解釈した時点でエスケープが発生
+    # 3つ目は正規表現でメタ文字に当たる`{`をエスケープするための
+    # 4つ目の`\`をエスケープするため
+    # これもPythonが``で文字列を解釈した時点でエスケープが発生
+    # 4つ目の`\`は正規表現でメタ文字に当たる`{`をエスケープするため
+    # これは正規表現モジュール`re`がエスケープを解釈する
+    curly_begin_pat=re.compile('\\\\{')
+    curly_end_pat=re.compile('\\\\}')
+
+    conv_math_str=math_str
+    # 不等号をHTML用不等号記号に
+    conv_math_str=less_than_pat.sub(parsed_less_than,conv_math_str)
+    conv_math_str=greater_than_pat.sub(parsed_greater_than,conv_math_str)
+    # キャレットの前後に空白を
+    conv_math_str=caret_pat.sub(" ^ ",conv_math_str)
+    # アンダーバーの前後に空白を
+    conv_math_str=under_bar_pat.sub(" _ ",conv_math_str)
+    # 波括弧のエスケープをさらにエスケープ
+    conv_math_str=curly_begin_pat.sub(r"\\\\{",conv_math_str)
+    conv_math_str=curly_end_pat.sub(r"\\\\}",conv_math_str)
+    
+    return inline_begin+conv_math_str+inline_end 
