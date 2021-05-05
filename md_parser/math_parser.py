@@ -178,6 +178,8 @@ def parse_katex_inline(math_str):
     # これは正規表現モジュール`re`がエスケープを解釈する
     curly_begin_pat=re.compile('\\\\{')
     curly_end_pat=re.compile('\\\\}')
+    # ノルム(エスケープ済みパイプ)の正規表現
+    norm_pat=re.compile("\\\\\|")
 
     conv_math_str=math_str
     # 不等号をHTML用不等号記号に
@@ -190,5 +192,7 @@ def parse_katex_inline(math_str):
     # 波括弧のエスケープをさらにエスケープ
     conv_math_str=curly_begin_pat.sub(r"\\\\{",conv_math_str)
     conv_math_str=curly_end_pat.sub(r"\\\\}",conv_math_str)
+    # エスケープ済みパイプをさらにエスケープ
+    conv_math_str=norm_pat.sub("\\\\\\\\|",conv_math_str)
     
     return inline_begin+conv_math_str+inline_end 
